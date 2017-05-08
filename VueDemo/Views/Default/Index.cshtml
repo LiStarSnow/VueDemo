@@ -1,0 +1,194 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<div id="todo-list-example">
+    <input v-model="newTodoText"
+           v-on:keyup.enter="addNewTodo"
+           placeholder="Add a todo">
+    <ul>
+        <li is="todo-item"
+            v-for="(todo, index) in todos"
+            v-bind:title="todo"
+            v-bind:indexa="index"
+            v-on:remove="todos.splice(index, 1)"></li>
+    </ul>
+
+
+    <button v-on:click="counter += 1">增加 1</button>
+    <p>这个按钮被点击了 {{ counter }} 次。</p>
+
+
+    <button v-on:click="warn('Form cannot be submitted yet.', $event)" onclick="javascript: alert('原生事件');">Submit</button>
+
+
+    <p>{{ total }}</p>
+    <button-counter v-on:increment="incrementTotal"></button-counter>
+    <button-counter v-on:increment="incrementTotal"></button-counter>
+
+    <!-- Alt + C -->
+    <p>在下面的输入框中按下 enter 键删除输入框内容。Message is : {{message}}</p>
+    <input v-on:keyup.enter="clear($event)" v-model="message" placeholder="edit me">
+
+    <input type="checkbox" id="checkbox" v-model="checked">
+    <label for="checkbox">{{ checked }}</label>
+
+    <input type="checkbox" id="jack" value="Jack" v-model="checkedNames">
+    <label for="jack">Jack</label>
+    <input type="checkbox" id="john" value="John" v-model="checkedNames">
+    <label for="john">John</label>
+    <input type="checkbox" id="mike" value="Mike" v-model="checkedNames">
+    <label for="mike">Mike</label>
+    <br>
+    <span>Checked names: {{ checkedNames }}</span>
+    <br />
+    <input v-model.lazy="age" />
+    <p>{{ age }}</p>
+
+    <p>自定义组件</p>
+    <input v-model="parentMsg" />
+    <br />
+    <p>绑定控件的prop属性myMessage为parentMsg</p>
+    <my-component my-message="parentMsg"></my-component>
+
+    <example label="单价" v-model="price"></example>{{ price }}
+</div>
+<script src="https://cdn.rawgit.com/chrisvfritz/5f0a639590d6e648933416f90ba7ae4e/raw/98739fb8ac6779cb2da11aaa9ab6032e52f3be00/currency-validator.js"></script>
+<script type="text/javascript">
+    var a, b;
+    (function () {
+        alert(a);
+        alert(b);
+        var a = b = 3;
+        alert(a);
+        alert(b);
+    })();
+    alert(a);
+    alert(b);
+
+    console.log(1 + "2" + "2");
+    console.log(1 + +"2" + "2");
+    console.log("A" - "B" + "2");
+    console.log("A" - "B" + 2);
+
+    var todoItem = {
+        template: '\
+    <li>\
+      {{ title }} - {{indexa}} \
+      <button v-on:click="$emit(\'remove\')">X</button>\
+    </li>\
+  ',
+        props: ['title', 'indexa']
+    };
+
+    // 注册
+    var myComponent = {
+        props: ['myMessage'],
+        template: '<div>{{ myMessage }}</div>'
+    }
+
+    var example =   {
+        props: {
+            label: {
+                type: String,
+                required: true,
+            },
+            value: {
+                type: Number,
+                default:22
+            }
+            
+        },
+        template: '<div>\
+        <span is="label">{{ label }}</span>\
+        $\
+        <input ref="input"\
+        v-bind:value="value" \
+        v-on:input="updateValue($event.target.value)"\
+        v-on:focus="selectAll"\
+v-on:blur="formatValue" />\
+        </div>',
+        methods: {
+            updateValue: function (value) {
+                var result = currencyValidator.parse(value, this.value)
+                if (result.warning) {
+                    this.$refs.input.value = result.value
+                }
+                this.$emit('input', result.value)
+            },
+            selectAll: function (event) {
+                // Workaround for Safari bug
+                // http://stackoverflow.com/questions/1269722/selecting-text-on-focus-using-jquery-not-working-in-safari-and-chrome
+                setTimeout(function () {
+                    event.target.select()
+                }, 0)
+            },
+            formatValue: function () {
+                this.$refs.input.value = currencyValidator.format(this.value)
+            }
+        }
+    }
+
+    Vue.component('button-counter', {
+        template: '<button v-on:click="increment">{{ counter }}</button>',
+        data: function () {
+            return {
+                counter: 0
+            }
+        },
+        methods: {
+            increment: function () {
+                this.counter += 1
+                this.$emit('increment')
+            }
+        },
+    })
+
+
+    new Vue({
+        el: '#todo-list-example',
+        data: {
+            newTodoText: '',
+            todos: [
+              'Do the dishes',
+              'Take out the trash',
+              'Mow the lawn'
+            ],
+            counter: 0,
+            message: '',
+            checked: true,
+            checkedNames: ["Jack"],
+            age: 0,
+            parentMsg: '',
+            price: 11,
+            total:0
+        },
+        components: {
+            'todo-item': todoItem,
+            'my-component': myComponent,
+            'example': example,
+        },
+        methods: {
+            incrementTotal: function () {
+                this.total += 1
+            },
+            addNewTodo: function () {
+                this.todos.push(this.newTodoText)
+                this.newTodoText = ''
+            },
+            warn: function (message, event) {
+                // 现在我们可以访问原生事件对象
+                if (event) event.preventDefault()
+                alert(message)
+            },
+            clear: function (event) {
+                event.target.value = ''
+            },
+            
+        }
+    })
+
+</script>
